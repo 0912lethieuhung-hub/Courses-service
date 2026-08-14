@@ -1,0 +1,259 @@
+{
+	"info": {
+		"_postman_id": "crs-buoi4-api-gateway-collection",
+		"name": "CRS Microservices - Buổi 4 (API Gateway)",
+		"description": "Bộ Collection kiểm thử toàn bộ 8 test case qua API Gateway (localhost:8080) cho Buổi 4.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "student_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1.1. Login Admin (Lấy Token ADMIN)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.token) {",
+							"    pm.collectionVariables.set('admin_token', jsonData.token);",
+							"    console.log('Saved admin_token:', jsonData.token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/login",
+					"host": ["{{base_url}}"],
+					"path": ["api", "auth", "login"]
+				},
+				"description": "Kỳ vọng: 200 OK, trả về JWT Token và tự động lưu vào biến admin_token"
+			},
+			"response": []
+		},
+		{
+			"name": "1.2. Login Student1 (Lấy Token STUDENT)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.token) {",
+							"    pm.collectionVariables.set('student_token', jsonData.token);",
+							"    console.log('Saved student_token:', jsonData.token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"student1\",\n    \"password\": \"student123\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/login",
+					"host": ["{{base_url}}"],
+					"path": ["api", "auth", "login"]
+				},
+				"description": "Kỳ vọng: 200 OK, trả về JWT Token và tự động lưu vào biến student_token"
+			},
+			"response": []
+		},
+		{
+			"name": "2. GET Danh sách môn học (Public - Không cần Token)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/courses",
+					"host": ["{{base_url}}"],
+					"path": ["api", "courses"]
+				},
+				"description": "Kỳ vọng: 200 OK, trả danh sách môn học"
+			},
+			"response": []
+		},
+		{
+			"name": "3. POST Tạo môn học - Thiếu Header Auth (Chặn tại Gateway)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"tenMonHoc\": \"Kien truc phan mem\",\n    \"soTinChi\": 3,\n    \"soChoToiDa\": 30\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/courses",
+					"host": ["{{base_url}}"],
+					"path": ["api", "courses"]
+				},
+				"description": "Kỳ vọng: 401 Unauthorized (Bị chặn sớm ngay tại AuthHeaderFilter của Gateway)"
+			},
+			"response": []
+		},
+		{
+			"name": "4. POST Tạo môn học - Token STUDENT (Bị từ chối bởi course-service)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{student_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"tenMonHoc\": \"Kien truc phan mem\",\n    \"soTinChi\": 3,\n    \"soChoToiDa\": 30\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/courses",
+					"host": ["{{base_url}}"],
+					"path": ["api", "courses"]
+				},
+				"description": "Kỳ vọng: 403 Forbidden (Qua được Gateway nhưng course-service từ chối vì không phải ADMIN)"
+			},
+			"response": []
+		},
+		{
+			"name": "5. POST Tạo môn học - Token ADMIN (Thành công)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{admin_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"tenMonHoc\": \"Kien truc phan mem\",\n    \"soTinChi\": 3,\n    \"soChoToiDa\": 30\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/courses",
+					"host": ["{{base_url}}"],
+					"path": ["api", "courses"]
+				},
+				"description": "Kỳ vọng: 201 Created (Tạo môn học thành công với quyền ADMIN)"
+			},
+			"response": []
+		},
+		{
+			"name": "6. POST Đăng ký môn học - Token STUDENT",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{student_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"studentId\": 1,\n    \"courseId\": 1\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/registrations",
+					"host": ["{{base_url}}"],
+					"path": ["api", "registrations"]
+				},
+				"description": "Kỳ vọng: 201 Created (Gateway forward sang registration-service -> verify JWT -> gọi ngầm sang course-service)"
+			},
+			"response": []
+		},
+		{
+			"name": "7. GET Đối tác - X-API-KEY Đúng (Thành công)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "crs-partner-key-2026"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/public/courses",
+					"host": ["{{base_url}}"],
+					"path": ["api", "public", "courses"]
+				},
+				"description": "Kỳ vọng: 200 OK (X-API-KEY hợp lệ)"
+			},
+			"response": []
+		},
+		{
+			"name": "8. GET Đối tác - X-API-KEY Sai (Bị chặn)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-API-KEY",
+						"value": "wrong-key-abc"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/public/courses",
+					"host": ["{{base_url}}"],
+					"path": ["api", "public", "courses"]
+				},
+				"description": "Kỳ vọng: 403 Forbidden (Bị chặn bởi ApiKeyFilter của Gateway)"
+			},
+			"response": []
+		}
+	]
+}
