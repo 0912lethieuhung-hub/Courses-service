@@ -45,12 +45,6 @@ spring:
                 - Path=/api/public/courses
               filters:
                 - RewritePath=/api/public/courses, /courses
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins: "http://localhost:5173"
-            allowedMethods: "*"
-            allowedHeaders: "*"
 
 jwt:
   secret: CRS-Microservices-Secret-Key-Nam-3-Hoc-Ky-2026-Doi-Trong-Thuc-Te
