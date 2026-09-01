@@ -1,5 +1,6 @@
 // path: crs-frontend/src/components/CourseList.tsx
-// purpose: cap nhat onEdit/onDelete thanh optional, chi hien cot "Thao tac" khi duoc truyen vao
+// purpose: bo sung prop onRegister (tuy chon) - trang Dang ky hoc phan se dung prop nay,
+// cac trang khac (CoursesPage, AdminCoursesPage) khong truyen vao nen khong bi anh huong
 
 import type { Course } from '../types/course';
 import type { LoadState } from '../api/useCourses';
@@ -11,6 +12,8 @@ interface CourseListProps {
   onRetry: () => void;
   onEdit?: (course: Course) => void;
   onDelete?: (course: Course) => void;
+  onRegister?: (course: Course) => void;
+  registeringId?: number | null; // id mon dang trong qua trinh goi API dang ky, de disable rieng nut do
 }
 
 export default function CourseList({
@@ -20,6 +23,8 @@ export default function CourseList({
   onRetry,
   onEdit,
   onDelete,
+  onRegister,
+  registeringId,
 }: CourseListProps) {
   if (state === 'loading') return <p>Dang tai danh sach mon hoc...</p>;
 
@@ -34,7 +39,7 @@ export default function CourseList({
 
   if (state === 'empty') return <p>Khong tim thay mon hoc nao phu hop.</p>;
 
-  const showActions = !!onEdit || !!onDelete;
+  const showActions = !!onEdit || !!onDelete || !!onRegister;
 
   return (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -69,6 +74,18 @@ export default function CourseList({
                     Xoa
                   </button>
                 )}
+                {onRegister && (
+                  <button
+                    onClick={() => onRegister(course)}
+                    disabled={course.soChoConLai === 0 || registeringId === course.id}
+                  >
+                    {registeringId === course.id
+                      ? 'Dang dang ky...'
+                      : course.soChoConLai === 0
+                      ? 'Het cho'
+                      : 'Dang ky'}
+                  </button>
+                )}
               </td>
             )}
           </tr>
@@ -77,5 +94,3 @@ export default function CourseList({
     </table>
   );
 }
-
-
