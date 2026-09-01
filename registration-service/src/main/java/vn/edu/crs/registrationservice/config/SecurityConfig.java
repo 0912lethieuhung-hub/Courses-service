@@ -24,6 +24,7 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                .accessDeniedHandler((req, res, accessDeniedException) -> res.setStatus(HttpStatus.FORBIDDEN.value()))
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/registrations", "/registrations/**").authenticated()
