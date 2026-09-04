@@ -26,7 +26,10 @@ export default function Navbar() {
       <Link to="/courses">Danh sach mon hoc</Link>
 
       {isAuthenticated && user?.role === 'ADMIN' && (
-        <Link to="/admin/courses">Quan tri mon hoc</Link>
+        <>
+          <Link to="/admin/courses">Quan tri mon hoc</Link>
+          <Link to="/admin/api-keys">Quan ly API Key</Link>
+        </>
       )}
 
       {isAuthenticated && user?.role === 'STUDENT' && (
