@@ -39,6 +39,13 @@ spring:
                 - Path=/api/registrations/**
               filters:
                 - RewritePath=/api/registrations/(?<segment>.*), /registrations/$\{segment\}
+            - id: auth-service-apikeys
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/api-keys,/api/api-keys/**
+              filters:
+                - RewritePath=/api/api-keys/(?<segment>.*), /api-keys/$\{segment\}
+                - RewritePath=/api/api-keys, /api-keys
             - id: course-service-partner
               uri: http://localhost:8085
               predicates:
@@ -48,9 +55,6 @@ spring:
 
 jwt:
   secret: CRS-Microservices-Secret-Key-Nam-3-Hoc-Ky-2026-Doi-Trong-Thuc-Te
-
-partner:
-  api-key: crs-partner-key-2026
 
 management:
   endpoints:
